@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interaktif - Pancasila di Era Kebangkitan Asia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .quiz-container {
+            padding: 30px;
+        }
+
+        .question-section {
+            background: #fce4ec;
+            border: 3px solid #e91e63;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .question-section::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #e91e63, #f8bbd9, #e91e63);
+            border-radius: 18px;
+            z-index: -1;
+        }
+
+        .question-title {
+            background: linear-gradient(135deg, #ad1457, #e91e63);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #880e4f;
+            font-weight: 500;
+        }
+
+        /* Multiple Choice Styles */
+        .option {
+            background: white;
+            border: 2px solid #f8bbd9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option:hover {
+            border-color: #e91e63;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.2);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+            border-color: #ad1457;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        /* Mobile-Friendly Matching Styles */
+        .matching-container {
+            margin: 20px 0;
+        }
+
+        .matching-instruction {
+            background: rgba(233, 30, 99, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #ad1457;
+        }
+
+        .drag-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .drag-item {
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(233, 30, 99, 0.3);
+            border: 3px solid transparent;
+        }
+
+        .drag-item:hover, .drag-item:active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(233, 30, 99, 0.4);
+        }
+
+        .drag-item.selected {
+            border-color: #fff;
+            background: linear-gradient(135deg, #ad1457, #e91e63);
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .drag-item.used {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: scale(0.95);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .drop-zones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .drop-zone {
+            border: 3px dashed #f8bbd9;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(248, 187, 217, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .drop-zone:hover, .drop-zone:active {
+            border-color: #e91e63;
+            background: rgba(233, 30, 99, 0.1);
+            transform: scale(1.02);
+        }
+
+        .drop-zone.active {
+            border-color: #e91e63;
+            background: rgba(233, 30, 99, 0.2);
+            animation: glow 0.5s ease-in-out;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(233, 30, 99, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(233, 30, 99, 0.6); }
+        }
+
+        .drop-zone.filled {
+            border-style: solid;
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+            font-weight: bold;
+        }
+
+        .drop-zone::before {
+            content: attr(data-label);
+            position: absolute;
+            top: -12px;
+            left: 15px;
+            background: white;
+            padding: 0 10px;
+            font-size: 0.9em;
+            color: #e91e63;
+            font-weight: bold;
+        }
+
+        /* Mobile-Friendly Sorting Styles */
+        .sorting-container {
+            background: rgba(248, 187, 217, 0.2);
+            border: 2px dashed #e91e63;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .sorting-instruction {
+            background: rgba(233, 30, 99, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #ad1457;
+        }
+
+        .sortable-list {
+            list-style: none;
+        }
+
+        .sortable-item {
+            background: white;
+            border: 2px solid #f8bbd9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .sortable-item:hover, .sortable-item:active {
+            border-color: #e91e63;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.2);
+        }
+
+        .sortable-item.selected {
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+            border-color: #ad1457;
+        }
+
+        .sortable-item::before {
+            content: attr(data-position);
+            background: #e91e63;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .move-controls {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .move-btn {
+            background: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .move-btn:hover {
+            background: #ad1457;
+            transform: scale(1.1);
+        }
+
+        .move-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Fill in the blank styles */
+        .fill-blank {
+            background: rgba(248, 187, 217, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .blank-input {
+            background: white;
+            border: 2px solid #f8bbd9;
+            border-radius: 5px;
+            padding: 8px 12px;
+            margin: 0 5px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .blank-input:focus {
+            border-color: #e91e63;
+            outline: none;
+            box-shadow: 0 0 10px rgba(233, 30, 99, 0.3);
+        }
+
+        /* Interactive Timeline */
+        .timeline-container {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            background: white;
+            border: 2px solid #f8bbd9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .timeline-item:hover {
+            border-color: #e91e63;
+            transform: translateX(10px);
+        }
+
+        .timeline-item.selected {
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+        }
+
+        /* Score Display */
+        .score-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+            z-index: 1000;
+        }
+
+        /* Check Answer Button */
+        .check-btn {
+            background: linear-gradient(135deg, #e91e63, #ad1457);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 15px 5px;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.4);
+        }
+
+        .check-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Results */
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+        }
+
+        .result.correct {
+            background: #c8e6c9;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+        }
+
+        .result.incorrect {
+            background: #ffcdd2;
+            color: #c62828;
+            border: 2px solid #f44336;
+        }
+
+        /* Final Results */
+        .final-results {
+            background: linear-gradient(135deg, #e91e63, #f8bbd9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(233, 30, 99, 0.3);
+        }
+
+        .final-score {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .matching-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .quiz-container {
+                padding: 20px;
+            }
+            
+            .score-display {
+                position: static;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="score-display">
+        <div>Skor: <span id="current-score">0</span> / <span id="total-questions">8</span></div>
+        <div>Progress: <span id="progress">0%</span></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🌸 Quiz Interaktif Pancasila 🌸</h1>
+            <p>Era Kebangkitan Asia - Uji Pemahaman Kotak Pintar</p>
+            <p><strong>Kelompok 2 XI-7</strong></p>
+        </div>
+
+        <div class="quiz-container">
+            <!-- Question 1: Multiple Choice -->
+            <div class="question-section">
+                <div class="question-title">📊 Soal 1: Data Statistik</div>
+                <div class="question-text">Berdasarkan data yang disajikan, berapa persen tingkat ketertarikan pelajar Indonesia terhadap budaya Korea yang menempatkan Indonesia sebagai negara dengan antusiasme tertinggi di dunia?</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">
+                        <input type="radio" name="q1" value="a"> A. 75%
+                    </div>
+                    <div class="option" onclick="selectOption(this, true)">
+                        <input type="radio" name="q1" value="b"> B. 86.3%
+                    </div>
+                    <div class="option" onclick="selectOption(this, false)">
+                        <input type="radio" name="q1" value="c"> C. 92%
+                    </div>
+                    <div class="option" onclick="selectOption(this, false)">
+                        <input type="radio" name="q1" value="d"> D. 89.5%
+                    </div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(1)">Periksa Jawaban</button>
+                <div class="result" id="result-1"></div>
+            </div>
+
+            <!-- Question 2: Mobile-Friendly Matching -->
+            <div class="question-section">
+                <div class="question-title">🎭 Soal 2: Jodohkan Budaya Pop dengan Negaranya</div>
+                <div class="question-text">Pilih budaya pop, lalu pilih negara asalnya yang tepat!</div>
+                <div class="matching-instruction">
+                    📱 Cara bermain: Klik budaya pop → Klik negara yang sesuai
+                </div>
+                <div class="matching-container">
+                    <div class="drag-items">
+                        <div class="drag-item" onclick="selectCulture(this)" data-value="kpop">K-POP 🎵</div>
+                        <div class="drag-item" onclick="selectCulture(this)" data-value="anime">ANIME 🎌</div>
+                        <div class="drag-item" onclick="selectCulture(this)" data-value="cdrama">C-DRAMA 🎬</div>
+                        <div class="drag-item" onclick="selectCulture(this)" data-value="bollywood">BOLLYWOOD 🕺</div>
+                    </div>
+                    <div class="drop-zones">
+                        <div class="drop-zone" data-label="Korea Selatan" data-accept="kpop" onclick="matchCulture(this)">Pilih Korea Selatan</div>
+                        <div class="drop-zone" data-label="Jepang" data-accept="anime" onclick="matchCulture(this)">Pilih Jepang</div>
+                        <div class="drop-zone" data-label="China" data-accept="cdrama" onclick="matchCulture(this)">Pilih China</div>
+                        <div class="drop-zone" data-label="India" data-accept="bollywood" onclick="matchCulture(this)">Pilih India</div>
+                    </div>
+                </div>
+                <button class="check-btn" onclick="checkMatching()">Periksa Jawaban</button>
+                <div class="result" id="result-2"></div>
+            </div>
+
+            <!-- Question 3: Mobile-Friendly Sorting -->
+            <div class="question-section">
+                <div class="question-title">📱 Soal 3: Urutkan Strategi Berdasarkan Target</div>
+                <div class="question-text">Urutkan strategi berikut dari yang ditujukan untuk <strong>Pelajar → Masyarakat → Pejabat Negara</strong>:</div>
+                <div class="sorting-instruction">
+                    📱 Cara bermain: Gunakan tombol ↑↓ untuk memindahkan urutan
+                </div>
+                <div class="sorting-container">
+                    <ul class="sortable-list" id="sortable-list">
+                        <li class="sortable-item" data-order="2" data-position="1">
+                            Kampanye digital "Indonesia Bangga" di platform media sosial
+                            <div class="move-controls">
+                                <button class="move-btn" onclick="moveItem(this, 'up')">↑</button>
+                                <button class="move-btn" onclick="moveItem(this, 'down')">↓</button>
+                            </div>
+                        </li>
+                        <li class="sortable-item" data-order="3" data-position="2">
+                            Kebijakan industri kreatif yang berbasis nilai Pancasila
+                            <div class="move-controls">
+                                <button class="move-btn" onclick="moveItem(this, 'up')">↑</button>
+                                <button class="move-btn" onclick="moveItem(this, 'down')">↓</button>
+                            </div>
+                        </li>
+                        <li class="sortable-item" data-order="1" data-position="3">
+                            Integrasi nilai Pancasila dalam Project Penguatan Profil Pelajar Pancasila (P5)
+                            <div class="move-controls">
+                                <button class="move-btn" onclick="moveItem(this, 'up')">↑</button>
+                                <button class="move-btn" onclick="moveItem(this, 'down')">↓</button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <button class="check-btn" onclick="checkSorting()">Periksa Urutan</button>
+                <div class="result" id="result-3"></div>
+            </div>
+
+            <!-- Question 4: Fill in the Blanks -->
+            <div class="question-section">
+                <div class="question-title">🔍 Soal 4: Lengkapi Kalimat</div>
+                <div class="question-text">Lengkapi kalimat berikut dengan kata yang tepat:</div>
+                <div class="fill-blank">
+                    <p>Indonesia menempati posisi ke-<input type="text" class="blank-input" data-answer="3" maxlength="1"> pasar K-Pop dunia dan platform digital seperti <input type="text" class="blank-input" data-answer="tiktok" style="min-width: 80px"> dari China mendominasi konsumsi media generasi muda Indonesia, yang berpotensi menggeser nilai-nilai <input type="text" class="blank-input" data-answer="lokal" style="min-width: 60px">.</p>
+                </div>
+                <button class="check-btn" onclick="checkFillBlanks()">Periksa Jawaban</button>
+                <div class="result" id="result-4"></div>
+            </div>
+
+            <!-- Question 5: Multiple Choice with Image -->
+            <div class="question-section">
+                <div class="question-title">🌸 Soal 5: Peluang vs Tantangan</div>
+                <div class="question-text">Tren kuliner Asia (Korea, Jepang, China) yang populer di kalangan remaja Indonesia dikategorikan sebagai:</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, false)">
+                        <input type="radio" name="q5" value="a"> A. Tantangan - karena menggeser makanan tradisional Indonesia
+                    </div>
+                    <div class="option" onclick="selectOption(this, true)">
+                        <input type="radio" name="q5" value="b"> B. Peluang - membuka inovasi kuliner nusantara dan fusion food beridentitas Indonesia
+                    </div>
+                    <div class="option" onclick="selectOption(this, false)">
+                        <input type="radio" name="q5" value="c"> C. Ancaman - merusak budaya kuliner lokal
+                    </div>
+                    <div class="option" onclick="selectOption(this, false)">
+                        <input type="radio" name="q5" value="d"> D. Netral - tidak berpengaruh pada budaya Indonesia
+                    </div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(5)">Periksa Jawaban</button>
+                <div class="result" id="result-5"></div>
+            </div>
+
+            <!-- Question 6: Interactive Timeline -->
+            <div class="question-section">
+                <div class="question-title">🌐 Soal 6: Solusi Holistik</div>
+                <div class="question-text">Pilih 3 solusi holistik yang tepat untuk mempertahankan Pancasila di era globalisasi (klik untuk memilih):</div>
+                <div class="timeline-container">
+                    <div class="timeline-item" data-correct="true" onclick="toggleTimelineItem(this)">
+                        Pengembangan soft power Indonesia di kancah global
+                    </div>
+                    <div class="timeline-item" data-correct="false" onclick="toggleTimelineItem(this)">
+                        Melarang semua konten budaya asing
+                    </div>
+                    <div class="timeline-item" data-correct="true" onclick="toggleTimelineItem(this)">
+                        Edukasi kritis terhadap konten asing dengan pendekatan selektif
+                    </div>
+                    <div class="timeline-item" data-correct="false" onclick="toggleTimelineItem(this)">
+                        Mengisolasi Indonesia dari pengaruh globalisasi
+                    </div>
+                    <div class="timeline-item" data-correct="true" onclick="toggleTimelineItem(this)">
+                        Penguatan identitas nasional melalui inovasi budaya
+                    </div>
+                    <div class="timeline-item" data-correct="false" onclick="toggleTimelineItem(this)">
+                        Menghentikan semua kolaborasi internasional
+                    </div>
+                </div>
+                <button class="check-btn" onclick="checkTimeline()">Periksa Pilihan</button>
+                <div class="result" id="result-6"></div>
+            </div>
+
+            <!-- Question 7: True/False -->
+            <div class="question-section">
+                <div class="question-title">✅ Soal 7: Benar atau Salah</div>
+                <div class="question-text">Platform digital seperti TikTok (China) dan Line (Jepang) mendominasi konsumsi media generasi muda Indonesia dan ini dikategorikan sebagai tantangan karena berpotensi menggeser nilai-nilai lokal.</div>
+                <div class="options">
+                    <div class="option" onclick="selectOption(this, true)">
+                        <input type="radio" name="q7" value="true"> BENAR ✓
+                    </div>
+                    <div class="option" onclick="selectOption(this, false)">
+                        <input type="radio" name="q7" value="false"> SALAH ✗
+                    </div>
+                </div>
+                <button class="check-btn" onclick="checkAnswer(7)">Periksa Jawaban</button>
+                <div class="result" id="result-7"></div>
+            </div>
+
+            <!-- Question 8: Essay Short -->
+            <div class="question-section">
+                <div class="question-title">📝 Soal 8: Uraian Singkat</div>
+                <div class="question-text">Sebutkan minimal 2 strategi konkret untuk masyarakat dalam mempertahankan nilai Pancasila di era globalisasi budaya Asia:</div>
+                <div class="fill-blank">
+                    <p><strong>Strategi 1:</strong></p>
+                    <textarea class="blank-input" style="width: 100%; min-height: 60px; resize: vertical;" placeholder="Tuliskan strategi pertama..." data-keywords="kampanye,digital,indonesia bangga,media sosial"></textarea>
+                    <p><strong>Strategi 2:</strong></p>
+                    <textarea class="blank-input" style="width: 100%; min-height: 60px; resize: vertical;" placeholder="Tuliskan strategi kedua..." data-keywords="influencer,lokal,edukatif,komunitas,tradisi,modern"></textarea>
+                </div>
+                <button class="check-btn" onclick="checkEssay()">Periksa Jawaban</button>
+                <div class="result" id="result-8"></div>
+            </div>
+
+            <!-- Final Results -->
+            <div class="final-results" id="final-results" style="display: none;">
+                <h2>🎉 Hasil Akhir Quiz 🎉</h2>
+                <div class="final-score" id="final-score-display">0 / 8</div>
+                <div id="performance-message"></div>
+                <button class="check-btn" onclick="resetQuiz()" style="margin-top: 20px; font-size: 1.1em;">Ulangi Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScore = 0;
+        let totalQuestions = 8;
+        let answeredQuestions = new Set();
+
+        // Multiple choice handler
+        function selectOption(element, isCorrect) {
+            const options = element.parentNode.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            element.dataset.correct = isCorrect;
+        }
+
+        function checkAnswer(questionNum) {
+            const selectedOption = document.querySelector(`input[name="q${questionNum}"]:checked`);
+            if (!selectedOption) {
+                alert('Pilih jawaban terlebih dahulu!');
+                return;
+            }
+
+            const isCorrect = selectedOption.closest('.option').dataset.correct === 'true';
+            showResult(questionNum, isCorrect, isCorrect ? 'Benar! Excellent! 🎉' : 'Salah. Coba perhatikan data statistik dengan lebih teliti. 📊');
+            
+            if (isCorrect && !answeredQuestions.has(questionNum)) {
+                currentScore++;
+                answeredQuestions.add(questionNum);
+                updateScore();
+            }
+        }
+
+        // Mobile-friendly matching game
+        let selectedCulture = null;
+        let matchingPairs = {};
+
+        function selectCulture(element) {
+            // Clear previous selection
+            document.querySelectorAll('.drag-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Clear active drop zones
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('active');
+            });
+            
+            if (!element.classList.contains('used')) {
+                element.classList.add('selected');
+                selectedCulture = element;
+                
+                // Highlight available drop zones
+                document.querySelectorAll('.drop-zone:not(.filled)').forEach(zone => {
+                    zone.classList.add('active');
+                });
+            }
+        }
+
+        function matchCulture(dropZone) {
+            if (!selectedCulture || dropZone.classList.contains('filled')) {
+                return;
+            }
+
+            const cultureValue = selectedCulture.dataset.value;
+            const acceptValue = dropZone.dataset.accept;
+
+            // Place the culture in the drop zone
+            dropZone.innerHTML = selectedCulture.innerHTML;
+            dropZone.classList.add('filled');
+            dropZone.dataset.filled = cultureValue;
+            
+            // Mark culture as used
+            selectedCulture.classList.add('used');
+            selectedCulture.classList.remove('selected');
+            
+            // Store the matching
+            matchingPairs[dropZone.dataset.label] = cultureValue;
+            
+            // Clear selection
+            selectedCulture = null;
+            
+            // Remove active states
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('active');
+            });
+        }
+
+        function checkMatching() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            let correct = 0;
+            
+            dropZones.forEach(zone => {
+                if (zone.dataset.filled === zone.dataset.accept) {
+                    correct++;
+                }
+            });
+
+            const isCorrect = correct === 4;
+            showResult(2, isCorrect, isCorrect ? 'Sempurna! Semua budaya pop berhasil dijodohkan dengan benar! 🎭✨' : `${correct}/4 benar. Periksa kembali pasangan budaya dan negaranya! 🤔`);
+            
+            if (isCorrect && !answeredQuestions.has(2)) {
+                currentScore++;
+                answeredQuestions.add(2);
+                updateScore();
+            }
+        }
+
+        // Mobile-friendly sorting with buttons
+        function moveItem(button, direction) {
+            const item = button.closest('.sortable-item');
+            const list = item.parentNode;
+            
+            if (direction === 'up') {
+                const prevItem = item.previousElementSibling;
+                if (prevItem) {
+                    list.insertBefore(item, prevItem);
+                }
+            } else {
+                const nextItem = item.nextElementSibling;
+                if (nextItem) {
+                    list.insertBefore(nextItem, item);
+                }
+            }
+            
+            updatePositions();
+        }
+
+        function updatePositions() {
+            const items = document.querySelectorAll('#sortable-list .sortable-item');
+            items.forEach((item, index) => {
+                item.dataset.position = index + 1;
+                
+                // Update button states
+                const upBtn = item.querySelector('.move-btn:first-child');
+                const downBtn = item.querySelector('.move-btn:last-child');
+                
+                upBtn.disabled = index === 0;
+                downBtn.disabled = index === items.length - 1;
+            });
+        }
+
+        function checkSorting() {
+            const items = document.querySelectorAll('#sortable-list .sortable-item');
+            let isCorrect = true;
+            
+            items.forEach((item, index) => {
+                if (parseInt(item.dataset.order) !== index + 1) {
+                    isCorrect = false;
+                }
+            });
+
+            showResult(3, isCorrect, isCorrect ? 'Urutan strategi sudah benar! Pelajar → Masyarakat → Pejabat! 📱✅' : 'Urutan belum tepat. Ingat: Pelajar → Masyarakat → Pejabat Negara! 🔄');
+            
+            if (isCorrect && !answeredQuestions.has(3)) {
+                currentScore++;
+                answeredQuestions.add(3);
+                updateScore();
+            }
+        }
+
+        // Remove old drag and drop event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize positions for sorting
+            updatePositions();
+            
+            // Add hover effects to question sections
+            const sections = document.querySelectorAll('.question-section');
+            sections.forEach(section => {
+                section.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 10px 25px rgba(233, 30, 99, 0.15)';
+                });
+                
+                section.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+
+        function checkMatching() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            let correct = 0;
+            
+            dropZones.forEach(zone => {
+                if (zone.dataset.filled === zone.dataset.accept) {
+                    correct++;
+                }
+            });
+
+            const isCorrect = correct === 4;
+            showResult(2, isCorrect, isCorrect ? 'Sempurna! Semua budaya pop berhasil dijodohkan dengan benar! 🎭✨' : `${correct}/4 benar. Periksa kembali pasangan budaya dan negaranya! 🤔`);
+            
+            if (isCorrect && !answeredQuestions.has(2)) {
+                currentScore++;
+                answeredQuestions.add(2);
+                updateScore();
+            }
+        }
+
+        function checkSorting() {
+            const items = document.querySelectorAll('#sortable-list .sortable-item');
+            let isCorrect = true;
+            
+            items.forEach((item, index) => {
+                if (parseInt(item.dataset.order) !== index + 1) {
+                    isCorrect = false;
+                }
+            });
+
+            showResult(3, isCorrect, isCorrect ? 'Urutan strategi sudah benar! Pelajar → Masyarakat → Pejabat! 📱✅' : 'Urutan belum tepat. Ingat: Pelajar → Masyarakat → Pejabat Negara! 🔄');
+            
+            if (isCorrect && !answeredQuestions.has(3)) {
+                currentScore++;
+                answeredQuestions.add(3);
+                updateScore();
+            }
+        }
+
+        function checkFillBlanks() {
+            const inputs = document.querySelectorAll('.fill-blank .blank-input');
+            let correct = 0;
+            let total = inputs.length;
+
+            inputs.forEach(input => {
+                const userAnswer = input.value.toLowerCase().trim();
+                const correctAnswer = input.dataset.answer.toLowerCase();
+                
+                if (userAnswer === correctAnswer) {
+                    correct++;
+                    input.style.borderColor = '#4caf50';
+                    input.style.backgroundColor = '#e8f5e9';
+                } else {
+                    input.style.borderColor = '#f44336';
+                    input.style.backgroundColor = '#ffebee';
+                }
+            });
+
+            const isCorrect = correct === total;
+            showResult(4, isCorrect, isCorrect ? 'Semua kata sudah terisi dengan benar! 🔍✨' : `${correct}/${total} benar. Periksa kembali kata yang diisi! 📝`);
+            
+            if (isCorrect && !answeredQuestions.has(4)) {
+                currentScore++;
+                answeredQuestions.add(4);
+                updateScore();
+            }
+        }
+
+        // Timeline selection
+        let selectedTimelineItems = [];
+
+        function toggleTimelineItem(element) {
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                selectedTimelineItems = selectedTimelineItems.filter(item => item !== element);
+            } else if (selectedTimelineItems.length < 3) {
+                element.classList.add('selected');
+                selectedTimelineItems.push(element);
+            } else {
+                alert('Maksimal 3 pilihan!');
+            }
+        }
+
+        function checkTimeline() {
+            if (selectedTimelineItems.length !== 3) {
+                alert('Pilih tepat 3 solusi!');
+                return;
+            }
+
+            let correct = 0;
+            selectedTimelineItems.forEach(item => {
+                if (item.dataset.correct === 'true') {
+                    correct++;
+                }
+            });
+
+            const isCorrect = correct === 3;
+            showResult(6, isCorrect, isCorrect ? 'Excellent! Semua 3 solusi holistik yang dipilih sudah tepat! 🌐🎯' : `${correct}/3 pilihan benar. Pastikan memilih solusi yang konstruktif dan tidak anti-globalisasi! 🤔`);
+            
+            if (isCorrect && !answeredQuestions.has(6)) {
+                currentScore++;
+                answeredQuestions.add(6);
+                updateScore();
+            }
+        }
+
+        function checkEssay() {
+            const textareas = document.querySelectorAll('.fill-blank textarea');
+            let correct = 0;
+            
+            textareas.forEach(textarea => {
+                const userAnswer = textarea.value.toLowerCase();
+                const keywords = textarea.dataset.keywords.split(',');
+                
+                let hasKeyword = keywords.some(keyword => userAnswer.includes(keyword.trim()));
+                
+                if (hasKeyword && userAnswer.length > 10) {
+                    correct++;
+                    textarea.style.borderColor = '#4caf50';
+                    textarea.style.backgroundColor = '#e8f5e9';
+                } else {
+                    textarea.style.borderColor = '#f44336';
+                    textarea.style.backgroundColor = '#ffebee';
+                }
+            });
+
+            const isCorrect = correct === 2;
+            showResult(8, isCorrect, isCorrect ? 'Jawaban uraian sangat baik! Strategi yang disebutkan relevan! 📝✨' : 'Coba sebutkan strategi yang lebih spesifik sesuai dengan materi! 💭');
+            
+            if (isCorrect && !answeredQuestions.has(8)) {
+                currentScore++;
+                answeredQuestions.add(8);
+                updateScore();
+            }
+        }
+
+        function showResult(questionNum, isCorrect, message) {
+            const resultDiv = document.getElementById(`result-${questionNum}`);
+            resultDiv.className = `result ${isCorrect ? 'correct' : 'incorrect'} show`;
+            resultDiv.textContent = message;
+            
+            if (answeredQuestions.size === totalQuestions) {
+                setTimeout(showFinalResults, 1000);
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('current-score').textContent = currentScore;
+            const progress = Math.round((answeredQuestions.size / totalQuestions) * 100);
+            document.getElementById('progress').textContent = progress + '%';
+        }
+
+        function showFinalResults() {
+            const percentage = Math.round((currentScore / totalQuestions) * 100);
+            document.getElementById('final-results').style.display = 'block';
+            document.getElementById('final-score-display').textContent = `${currentScore} / ${totalQuestions} (${percentage}%)`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🌟 EXCELLENT! Pemahaman Pancasila di era globalisasi sangat baik! Anda siap menjadi duta budaya Indonesia! 🇮🇩';
+            } else if (percentage >= 75) {
+                message = '👏 GOOD JOB! Pemahaman cukup baik, terus pelajari strategi mempertahankan nilai Pancasila! 📚';
+            } else if (percentage >= 60) {
+                message = '📖 KEEP LEARNING! Pelajari kembali materi tentang peluang dan tantangan globalisasi budaya Asia! 💪';
+            } else {
+                message = '🔄 TRY AGAIN! Baca ulang kotak pintar Pancasila dan coba lagi quiz ini! 📝';
+            }
+            
+            document.getElementById('performance-message').innerHTML = message;
+            
+            // Scroll to results
+            document.getElementById('final-results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            currentScore = 0;
+            answeredQuestions.clear();
+            selectedTimelineItems = [];
+            
+            // Reset all forms and states
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
+            document.querySelectorAll('.timeline-item').forEach(item => item.classList.remove('selected'));
+            document.querySelectorAll('.blank-input').forEach(input => {
+                input.value = '';
+                input.style.borderColor = '#f8bbd9';
+                input.style.backgroundColor = 'white';
+            });
+            document.querySelectorAll('.result').forEach(result => {
+                result.classList.remove('show', 'correct', 'incorrect');
+                result.textContent = '';
+            });
+            
+            // Reset drag and drop
+            document.querySelectorAll('.drag-item').forEach(item => item.style.display = 'block');
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.innerHTML = '';
+                zone.classList.remove('filled');
+                zone.dataset.filled = '';
+            });
+            
+            document.getElementById('final-results').style.display = 'none';
+            updateScore();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize score display
+        updateScore();
+
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to question sections
+            const sections = document.querySelectorAll('.question-section');
+            sections.forEach(section => {
+                section.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 10px 25px rgba(233, 30, 99, 0.15)';
+                });
+                
+                section.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+
+        // Konfetti effect untuk jawaban benar
+        function createConfetti() {
+            const colors = ['#e91e63', '#f8bbd9', '#ff69b4', '#ffc0cb'];
+            for (let i = 0; i < 10; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.borderRadius = '50%';
+                confetti.style.pointerEvents = 'none';
+                confetti.style.zIndex = '9999';
+                document.body.appendChild(confetti);
+
+                const animation = confetti.animate([
+                    { transform: 'translateY(-10px) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 10}px) rotate(360deg)`, opacity: 0 }
+                ], {
+                    duration: 3000,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                });
+
+                animation.addEventListener('finish', () => confetti.remove());
+            }
+        }
+
+        // Enhanced show result with confetti
+        function showResult(questionNum, isCorrect, message) {
+            const resultDiv = document.getElementById(`result-${questionNum}`);
+            resultDiv.className = `result ${isCorrect ? 'correct' : 'incorrect'} show`;
+            resultDiv.textContent = message;
+            
+            if (isCorrect) {
+                createConfetti();
+            }
+            
+            if (answeredQuestions.size === totalQuestions) {
+                setTimeout(showFinalResults, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
